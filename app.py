@@ -3,6 +3,7 @@ import os
 from flask import Flask, jsonify, request
 
 from calorie_detector import FoodAnalysisError, analyze_food_image
+from coach_agent import analyze_user_data, CoachAnalysisError
 
 
 app = Flask(__name__)
@@ -36,6 +37,21 @@ def analyze_food():
         return jsonify({"error": str(exc)}), 500
 
 
+@app.route("/api/health/coach", methods=["POST", "OPTIONS"])
+def coach_analysis():
+    if request.method == "OPTIONS":
+        return ("", 204)
+        
+    data = request.get_json(silent=True) or {}
+    try:
+        payload = analyze_user_data(data)
+        return jsonify(payload)
+    except CoachAnalysisError as exc:
+        return jsonify({"error": str(exc)}), exc.status_code
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
 @app.route("/health", methods=["GET", "OPTIONS"])
 def health():
     if request.method == "OPTIONS":
@@ -46,3 +62,4 @@ def health():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5001"))
     app.run(host="0.0.0.0", port=port, debug=False)
+
