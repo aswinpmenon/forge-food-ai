@@ -14,13 +14,13 @@ class CoachAnalysisError(RuntimeError):
 def _build_request_payload(data: dict) -> dict:
     prompt = (
         "You are an elite AI personal trainer for a health tracking app called FORGE. "
-        "You will receive a user's calorie goal and their last 7 days of calorie and workout data. "
-        "Analyze the data for consistency, calorie adherence (surplus/deficit relative to goal), workout frequency, and recovery gaps. "
-        "Provide exactly 1-2 concise, direct, actionable, and encouraging sentences of daily feedback. "
-        "Do not include greetings or pleasantries. Be specific and data-driven where possible.\n\n"
+        "You will receive a user's calorie goal and their daily calorie and workout data from the PREVIOUS 7 days. "
+        "Analyze this historical data for consistency, calorie adherence, and workout frequency to provide a morning motivational message for TODAY. "
+        "Provide exactly 1-2 concise, direct, actionable, and encouraging sentences. Focus on setting a positive, motivated tone for the upcoming day based on yesterday's performance. "
+        "Do not micromanage or complain about missing data for 'today' since today has just started. Be specific and data-driven where possible.\n\n"
     )
     
-    prompt += f"Goal: {data.get('goal', 2400)} kcal\n\nPast 7 days data:\n"
+    prompt += f"Goal: {data.get('goal', 2400)} kcal\n\nPrevious 7 days data:\n"
     for day in data.get('days', []):
         workouts = ", ".join(day.get('workouts', [])) or "Rest"
         prompt += f"{day.get('date', 'Unknown')}: {day.get('calories', 0)} kcal, Workouts: {workouts}\n"
